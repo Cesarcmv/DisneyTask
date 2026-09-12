@@ -15,6 +15,8 @@ public class DisneyPlusHomePage {
     private final WebDriverWait wait;
 
     private final By privacyPolicyLink = By.cssSelector("a[data-key='privacy']");
+    private final By exploreDisney = By.cssSelector("a[data-key='explore disney+']");
+
     private final By footerLinks = By.cssSelector("a");
 
     public DisneyPlusHomePage(WebDriver driver) {
@@ -47,36 +49,14 @@ public class DisneyPlusHomePage {
 
     public PrivacyPolicyPage clickPrivacyPolicy() {
         WebElement link = wait.until(ExpectedConditions.elementToBeClickable(privacyPolicyLink));
-        String originalWindow = driver.getWindowHandle();
-        int originalWindowCount = driver.getWindowHandles().size();
         link.click();
-
-        wait.until(d -> d.getWindowHandles().size() > originalWindowCount || !d.getCurrentUrl().contains("disneyplus.com"));
-
-        for (String window : driver.getWindowHandles()) {
-            if (!window.equals(originalWindow)) {
-                driver.switchTo().window(window);
-                break;
-            }
-        }
-
         wait.until(ExpectedConditions.urlContains("privacy.thewaltdisneycompany.com"));
         return new PrivacyPolicyPage(driver);
     }
 
     public String clickExploreDisneyPlus() {
         scrollToFooter();
-        WebElement link = wait.until(driver -> driver.findElements(footerLinks).stream()
-                .filter(element -> {
-                    try {
-                        return element.isDisplayed() && element.isEnabled()
-                                && element.getText().trim().equals("Explore Disney+");
-                    } catch (StaleElementReferenceException exception) {
-                        return false;
-                    }
-                })
-            .findFirst()
-            .orElse(null));
+        WebElement link = wait.until(ExpectedConditions.elementToBeClickable(exploreDisney));
         link.click();
         wait.until(ExpectedConditions.titleContains("Explore Disney+"));
         return driver.getTitle();
